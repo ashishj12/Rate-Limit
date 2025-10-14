@@ -3,8 +3,8 @@ import cors from 'cors';
 import { config } from './config/dotenv.js';
 import { connectDatabase } from './config/database.js';
 import { logger } from './utils/logger.js';
-// import routes from './routes';
-// import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import authRoutes from './routes/auth.route.js';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 const app: Application = express();
 
@@ -20,11 +20,11 @@ app.use((req, res, next) => {
 });
 
 // Routes
-// app.use('/api', routes);
+app.use('/api/v1/auth', authRoutes);
 
 // Error handling
-// app.use(notFoundHandler);
-// app.use(errorHandler);
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Start server
 const startServer = async () => {
