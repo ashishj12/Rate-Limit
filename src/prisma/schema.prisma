@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullname  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rateLimits RateLimit[]
+  apiLogs    ApiLog[]
+
+  @@map("users")
+}
+
+model RateLimit {
+  id          String             @id @default(uuid())
+  userId      String
+  algorithm   RateLimitAlgorithm @default(TOKEN_BUCKET)
+  maxRequests Int                @default(100)
+  windowMs    Int                @default(60000) // 1 min.
+
+  // Token Bucket 
+  tokens     Float    @default(100)
+  lastRefill DateTime @default(now())
+
+  // Leaky Bucket 
+  queueSize Int      @default(0)
+  lastLeak  DateTime @default(now())
+
+  // Sliding Window 
+  requestTimestamps Json?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("rate_limits")
+}
+
+model ApiLog {
+  id          String   @id @default(uuid())
+  userId      String
+  endpoint    String
+  method      String
+  statusCode  Int
+  rateLimited Boolean  @default(false)
+  timestamp   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@map("api_logs")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum RateLimitAlgorithm {
+  TOKEN_BUCKET
+  SLIDING_WINDOW
+  LEAKY_BUCKET
+}
