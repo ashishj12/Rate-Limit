@@ -20,6 +20,12 @@ export interface LoginDTO {
   password: string;
 }
 
+export interface RateLimitConfig {
+  algorithm: 'TOKEN_BUCKET' | 'SLIDING_WINDOW' | 'LEAKY_BUCKET';
+  maxRequests: number;
+  windowMs: number;
+}
+
 export interface IRateLimiter {
   checkLimit(
     userId: string,

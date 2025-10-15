@@ -102,12 +102,12 @@ export class AuthService {
       },
     });
   }
+  async resetLimit(userId: string): Promise<void> {
+    await prisma.rateLimit.updateMany({
+      where: { userId, algorithm: 'SLIDING_WINDOW' },
+      data: {
+        requestTimestamps: [],
+      },
+    });
+  }
 }
-
-// prisma.rateLimit.updateMany({
-//   where: { userId, algorithm: 'TOKEN_BUCKET' },
-//   data: {
-//     tokens: this.maxTokens,
-//     lastRefill: new Date(),
-//   },
-// });
