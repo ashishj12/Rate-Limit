@@ -19,12 +19,22 @@ export class AuthService {
       //hash password
       const hashedPassword = await PasswordUtil.hash(data.password);
 
+      //set role
+      let role: 'USER' | 'ADMIN' = 'USER';
+      if (data.role === 'ADMIN') {
+        if (data.adminKey !== process.env.ADMIN_SECRET) {
+          throw new Error('Unauthorized to register as ADMIN');
+        }
+        role = 'ADMIN';
+      }
+
       //create user
       const user = await prisma.user.create({
         data: {
           email: data.email,
           password: hashedPassword,
           fullname: data.fullname,
+          role: role,
         },
         select: {
           id: true,

@@ -13,6 +13,8 @@ export interface RegisterDTO {
   email: string;
   password: string;
   fullname: string;
+  role?: 'USER' | 'ADMIN';
+  adminKey?: string; 
 }
 
 export interface LoginDTO {
